@@ -58,6 +58,10 @@ class BailianRerankProvider(RerankProvider):
             "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank",
         )
 
+        self.proxy = provider_config.get("proxy", "")
+        if self.proxy:
+            logger.info(f"百炼 Rerank 使用代理: {self.proxy}")
+
         # 设置HTTP客户端
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -232,7 +236,9 @@ class BailianRerankProvider(RerankProvider):
             )
 
             # 发送请求
-            async with self.client.post(self.base_url, json=payload) as response:
+            async with self.client.post(
+                self.base_url, json=payload, proxy=self.proxy or None
+            ) as response:
                 response.raise_for_status()
                 response_data = await response.json()
 
