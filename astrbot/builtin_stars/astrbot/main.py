@@ -12,6 +12,7 @@ from astrbot.core import logger
 from astrbot.core.utils.session_waiter import (
     FILTERS,
     USER_SESSIONS,
+    SenderSessionFilter,
     SessionController,
     SessionWaiter,
     session_waiter,
@@ -126,7 +127,9 @@ class Main(star.Star):
                 controller.stop()
 
             try:
-                await empty_mention_waiter(event)
+                # 将等待会话绑定到发送者本人，避免群聊中其他成员在等待窗口内
+                # 发送的普通消息被拦截并误当作对 @ 的回应（#9377）。
+                await empty_mention_waiter(event, session_filter=SenderSessionFilter())
             except TimeoutError:
                 pass
             except Exception as e:

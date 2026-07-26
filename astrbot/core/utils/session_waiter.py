@@ -101,6 +101,18 @@ class DefaultSessionFilter(SessionFilter):
         return event.unified_msg_origin
 
 
+class SenderSessionFilter(SessionFilter):
+    """将会话绑定到消息发送者。
+
+    默认的 DefaultSessionFilter 以 unified_msg_origin 作为会话标识符，
+    在群聊中该标识符对所有成员相同，会导致等待期间其他成员的消息也被拦截。
+    使用此过滤器可以将会话精确绑定到「会话来源 + 发送者」，互不干扰。
+    """
+
+    def filter(self, event: AstrMessageEvent) -> str:
+        return f"{event.unified_msg_origin}:{event.get_sender_id()}"
+
+
 class SessionWaiter:
     def __init__(
         self,
